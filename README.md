@@ -1,7 +1,7 @@
 # Current Build Status
 
 Linux, OSX: [![Build
-Status](https://travis-ci.org/csdms/topoflow-recipe.svg?branch=master)](https://travis-ci.org/csdms-stack/topoflow-recipe)
+Status](https://travis-ci.org/csdms-stack/topoflow-recipe.svg?branch=master)](https://travis-ci.org/csdms-stack/topoflow-recipe)
 
 # About topoflow
 
