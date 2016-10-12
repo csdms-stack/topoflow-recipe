@@ -9,11 +9,18 @@ env:
   - NUMPY_VERSION="1.9"
   - secure: AUIV5ayaJqY1ISXHkB1hK4/apx0Vd9how2BGiF+cK8tMv/W1e7N+3CdGh0sIpu2MyQk6v7bGB46y6xNstdWZ4foIdT3he03S3AjqTgA+1IBe9eH0O74nuXtD3XdnyIF3zKn2gwBU7mZumkO5sIT0souH9z20oPPSW9p1dt6aVi14BMwXWA2wkCusfWMg4AM+UkW8WKVnDj97iT3q4eDR1tXllTLUGUNAzJ+Duwyioq7zqw/1ne+SXVSZlOybqlIIFg/ByXzT04ugfubW626mAJOpIcTQGN/WOkSAFC/aV94EwKWHWb17GQIkEnyDv4csLltrXr4XwJDEg6DGJSBrIvOSjmWYwJOyqplOYQL6FKuzM+CMc4uICI4NBJ++jDJ+1JvjMvFKUv9wPaD6P+1dKIIr/2sfyvb/WdAgwYeX7Tl1DiPh102wPtvOJKN+O/fua1hNCvHITOmNgNtDDKVtKB8x2XL0JSTOmVCiQWiTDxot4Syj9F2id7H2TCj851/i7xa0+krQJPMyVT5nqlLDHVVoMHB/3kWGX+9+nhiGzpGplbqq8Xh6xDrNxgeH00zS8RfWyGTuqr7N6eQqau90DdhPFMWi3bZoXpCiWypFklp4mdt0KR59RHu60A41OXqMaZ/hFQauRyl2hbv8xPV26UfhLI7Et+QkuIWcnoOIU6Q=
 sudo: false
+before_install:
+- |
+  if [[ $TRAVIS_OS_NAME == "osx" ]]; then
+    brew remove --force $(brew list)
+    brew cleanup -s
+    rm -rf $(brew --cache)
+  fi
 install:
 - bash ci/travis/install_python.sh $HOME/miniconda
 - export PATH="$HOME/miniconda/bin:$PATH"
 script:
-- conda build recipe -c conda-forge -c csdms/channel/dev -c csdms
+- conda build recipe -c conda-forge -c csdms-stack
 after_success:
 - if [[ $TRAVIS_BRANCH == "master" ]]; then export CHANNEL="main"; fi
 - bash ci/travis/deploy_to_anaconda.sh $THIS_PACKAGE
