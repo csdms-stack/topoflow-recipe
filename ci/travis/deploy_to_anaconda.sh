@@ -21,7 +21,7 @@ if [[ -z $CHANNEL ]]; then
 fi
 
 echo "Uploading to $CHANNEL"
-$ANACONDA_UPLOAD --force --user csdms --channel $CHANNEL \
+$ANACONDA_UPLOAD --force --user csdms-stack --channel $CHANNEL \
   $PREFIX/conda-bld/**/$PACKAGE_NAME*bz2
 
 echo "Done."
