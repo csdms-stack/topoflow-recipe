@@ -4,9 +4,9 @@ os:
 - osx
 env:
   global:
-  - THIS_PACKAGE=topoflow
+  - CONDA_PREFIX=$HOME/miniconda
+  - MINICONDA_URL_BASE="https://repo.continuum.io/miniconda/Miniconda3-latest"
   - TRAVIS_PYTHON_VERSION="2.7"
-  - NUMPY_VERSION="1.9"
   - secure: Zh4g0gOhQQpFG8aKnHgAgwCaHaV388XVLdt15m8tZdjvrJmZ5hVg1EGsrwMkhTGb6+sVTidJ5cldfSR6GHH+UJViiIjMPHA44a+t2MN3If/j2svB33B3tVkLNodLk9dtUHx+MBbSjYxqVum0V6pPyqOVxSM+ptwlLJcDOdY0y5/lHqHr0mVuTXx/Yew7j5WG3nSYQEL9drta8flojqy++3wpRG+A3tVDGBg6CSG/6hRMYedqj2O09zaTDsKYlIpSifKpdeM59PA+FhojpqxwGLxORcSdC7ORTk+Ql9JagCatiWQTIJ3BrBxp3B44Jswe0MHMfXAoSVzgWdGklfytMi3GcEILO12YH/+2F9RhHfJA88XLExOpUwF/MYOBeC4ZmD4OrX3izy9aWIK59sgOzSwG7Gm78uVg9BgKqtyT4d8A+dO5W9hMNDZeQXx6BtsKQd4Sm8B83w/12zXQkzDFz0ekWB4fmDrqgUHY8r9SaMY6OSBA+PllZgAWpyeMQG16yUYWHnlKOiljWI+EjQbia67WhEP1KUlOu87KKVCXxQF3tEyqPY8H1jJYJzc6cuSOgzOQ3p5YLbB+lET4DkFQXGdFOr8tRWxkPmHVBtWHWNtS59JVyz8DTuo36ZNPD3MEy8DagY/ClZ13TcUIoRgrvdIWaP3MwzYaLdeJu9NwDpU=
 sudo: false
 before_install:
@@ -17,10 +17,23 @@ before_install:
     rm -rf $(brew --cache)
   fi
 install:
-- bash ci/travis/install_python.sh $HOME/miniconda
-- export PATH="$HOME/miniconda/bin:$PATH"
+- |
+  if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+    OS="MacOSX-x86_64"
+  else
+    OS="Linux-x86_64"
+  fi
+- curl $MINICONDA_URL_BASE-$OS.sh > $HOME/minconda.sh
+- bash $HOME/minconda.sh -b -p $CONDA_PREFIX
+- export PATH="$CONDA_PREFIX/bin:$PATH"
+- hash -r
+- conda config --set always_yes yes --set changeps1 no
+- conda install python=$TRAVIS_PYTHON_VERSION
+- conda install -q conda-build anaconda-client coverage sphinx
 script:
-- conda build recipe -c conda-forge -c csdms-stack
+- conda build ./recipe -c csdms-stack -c conda-forge
 after_success:
-- if [[ $TRAVIS_BRANCH == "master" ]]; then export CHANNEL="main"; fi
-- bash ci/travis/deploy_to_anaconda.sh $THIS_PACKAGE
+- curl https://raw.githubusercontent.com/csdms/ci-tools/master/anaconda_upload.py
+  > $HOME/anaconda_upload.py
+- echo $ANACONDA_TOKEN | python $HOME/anaconda_upload.py ./recipe --channel=main --org=csdms-stack
+  --token=-
